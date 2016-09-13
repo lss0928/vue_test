@@ -1,0 +1,17 @@
+{
+  "name": "vue",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "lss0928 <2509886327@qq.com>"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

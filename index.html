@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>vue练习</title>
+</head>
+<style>
+	*{
+		padding:0;
+		margin:0;
+	}
+	h3{
+		width:100%;
+		height: 50px;
+		background: blue;
+	}
+	.nav{
+		width:200px;
+		float: left;
+		background: #ccc;
+	}
+	.nav li{
+		text-align: center;
+		line-height: 50px;
+
+	}
+	.main{
+		
+		background: yellow;
+		position: absolute;
+		left:200px;
+		top:50px;
+		right:0;
+		bottom:0;
+	}
+	#box{
+		line-height: 25px;
+
+	}
+	#box li{
+		border-bottom: 1px solid #000;
+	}
+	.content{
+		background: red;
+	}
+</style>
+<body>
+	
+	
+
+	<h3>路由</h3>
+	<ol class="nav">
+		<!-- <li><a v-link="{ path:'/home' }">home</a></li>
+		<li><a v-link="{ path:'/product' }">product</a></li>
+		<li><a v-link="{ path:'/list' }">list</a></li> -->
+		<li v-for="i in navArr"><a v-link="{ path:i.name}">{{i.name.substr(1)}}</a></li>
+
+		<li><a v-link="{ name:'pro1',params:{ id: 1 } }">pro1</a></li>
+		<li><a v-link="{ name:'pro2',params:{ id: 2 } }">pro2</a></li>
+		<li><a v-link="{ name:'pro3',params:{ id: 3 } }">pro3</a></li>
+		<li><a v-link="{ path:'/index' }">index</a></li>
+	</ol>
+	<div class="main">
+		<ul id="box">
+			<li>{{name}}</li>
+			<li>{{age}}</li>
+			<li>
+				<h6 v-for="i in honor" v-on:click="click">{{i}}</h6>
+			</li>
+		</ul>
+		<input type="text" v-model="txt" placeholder="请输入">
+		<div>您输入的内容是：{{txt}}</div>
+
+		<!--自定义指令-->
+		<div v-example a="hi">自定义1</div>
+		<div v-example2 v-bind:a="someValue">自定义2</div>
+		<!--router-view-->
+		<router-view class="content">main</router-view>
+	</div>
+	
+	<script src="./src/js/vue.js"></script>
+	<script src="./src/js/vue-router.js"></script>
+	<script>
+		
+		/*
+			指令：
+			    v-text
+			    v-html
+			    v-if
+			    v-show
+			    v-else
+			    v-for
+			    v-on
+			    v-bind
+			    v-model
+			    v-ref
+			    v-el
+			    v-pre
+			    v-cloak
+		*/
+		
+		/*
+		 通过构造函数 Vue 创建一个 Vue 的根实例
+
+		 el是传入一个区域块的ID
+		 data是代理的对象,专门保存数据的
+		 methods是管理函数的对象
+		*/
+		 new Vue({
+		 	el:"#box",
+		 	data:{
+		 		name:"张三",
+		 		age:"23",
+		 		honor:['唱歌','游泳','篮球']
+		 	},
+		 	methods:{
+		 		click:function(event){
+		 			alert(1) //对象字面量
+		 		}
+		 	}
+		 })
+		 /*----------------------------自定义指令------------------------------*/
+		 Vue.directive('example', {
+			  params: ['a'],
+			  bind: function () {
+			    alert(this.params.a) // -> "hi"
+			  }
+		})
+		 Vue.directive('example2', {
+			  params: ['a'],
+			  paramWatchers: {
+			    a: function (val, oldVal) {
+			      console.log('a changed!')
+			    }
+			  }
+		})
+		 /*----------------------------路由-------------------*/
+
+		 //1、创建app的入口，根实例
+		 var app = Vue.extend({
+		 	data:function(){
+		 		return {
+		 			navArr : [
+			 			{name:'/home'},
+			 			{name:'/product'},
+			 			{name:'/list'}
+			 		]
+		 		}
+		 	}
+		 });
+		
+		 //2、创建路由实例
+		 var router = new VueRouter();//对象
+		 //3、模板
+		 var home = Vue.extend({
+		 	template:'<div>这是home页面</div>'
+		 })
+		  var product = Vue.extend({
+		 	template:'<div>这是product页面</div>'
+		 })
+		 var list = Vue.extend({
+		 	template:'<div>这是list页面</div>'
+		 })
+
+		 var pro1 = Vue.extend({
+		 	template:'<div>这是pro1 {{$router.params|json}} </div>'
+		 })
+		 var pro2 = Vue.extend({
+		 	template:'<div>这是pro2</div>'
+		 })
+		 var pro3 = Vue.extend({
+		 	template:'<div>这是pro3</div>'
+		 })
+		 var error = Vue.extend({
+		 	template:'<div>not found</div>'
+		 })
+		 
+
+		 //4、map方法遍历路由
+		 router.map({
+		 	'/home':{
+		 		component:home	//注册组件
+		 	},
+			'/product':{
+		 		component:product
+		 	},
+			'/list':{
+		 		component:list
+		 	},
+		 	'/pro1/:id':{
+		 		name:'pro1',
+		 		component:pro1
+		 	},
+			'/pro2/:id':{
+		 		name:'pro2',
+		 		component:pro2
+		 	},
+		 	'/pro3/:id':{
+		 		name:'pro3',
+		 		component:pro3
+		 	},
+		 	'/error':{
+		 		component:error
+		 	}
+		 	
+		 })
+		 //5、设置路由入口
+		 router.start(app,'body');// start时 注册一个根实例
+		 //6、错误路由配置
+		 router.redirect({
+		 		'*':'/error',
+		 		"/":"/list"
+		 	})
+	</script>
+</body>
+</html>
